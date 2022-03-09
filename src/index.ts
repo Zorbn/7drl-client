@@ -1,6 +1,40 @@
 import * as SocketIo from "socket.io-client";
 import * as Pixi from "pixi.js";
 import { GameApp } from "./gameApp";
+import { TileMap } from "./tileMap";
+
+const socket = SocketIo.io(/* The client is served by the server, so no domain needs t obe specified */);
+
+const targetFps = 144;
+const frameTime = 1 / targetFps;
+const frameTimeMs = 1000 / targetFps;
+
+let sprites: string[] = [
+    "../assets/floor.png",
+    "../assets/wall.png",
+];
+
+let textures: Pixi.Texture[] = [];
+
+for (let i = 0; i < sprites.length; i++) {
+    textures[i] = Pixi.Texture.from(sprites[i]);
+}
+
+let gameApp = new GameApp(0x00a1db);
+gameApp.registerListeners();
+
+let map = new TileMap();
+map.registerListeners(socket);
+gameApp.stage.addChild(map.container);
+
+setInterval(() => {
+    map.updateGfx(textures);
+}, frameTimeMs);
+
+/*
+import * as SocketIo from "socket.io-client";
+import * as Pixi from "pixi.js";
+import { GameApp } from "./gameApp";
 import {
     addEntity,
     createWorld,
@@ -13,8 +47,9 @@ import {
     Types,
     addComponent,
 } from "bitecs";
-
-const socket = SocketIo.io(/* The client is served by the server, so no domain needs to be specified */);
+*/
+//const socket = SocketIo.io(/* The client is served by the server, so no domain needs to be specified */);
+/*
 const world = createWorld();
 let gameApp = new GameApp(0x00a1db);
 gameApp.registerListeners();
@@ -67,7 +102,7 @@ const spritePositionSystem = defineSystem((world: IWorld): IWorld => {
     const entities = spritePositionQuery(world);
     for (let i = 0; i < entities.length; i++) {
         const eid = entities[i];
-        if (spriteList[eid] == null) continue;
+        if (spriteList[eid] == undefined) continue;
 
         spriteList[eid].position.x = Position.x[eid];
         spriteList[eid].position.y = Position.y[eid];
@@ -145,3 +180,4 @@ addComponent(world, LocalPlayer, playerId);
 addComponent(world, Position, playerId);
 addComponent(world, Speed, playerId);
 Speed.speed[playerId] = 150;
+*/
